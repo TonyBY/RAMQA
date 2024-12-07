@@ -1,0 +1,3 @@
+[submodule "src/RAMLLaMA/eval/BARTScore"]
+	path = src/RAMLLaMA/eval/BARTScore
+	url = https://github.com/neulab/BARTScore.git
