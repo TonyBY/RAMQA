@@ -734,3 +734,156 @@ def format_trans_mmqa_to_ranking(data_list: List[dict],
                      )
         
     return output
+
+
+def ranking_eval_data_processing_mmqa(data_path: str=None, 
+                       text_corpus_dict: dict=None,
+                       image_corpus_dict: dict=None,
+                       ) -> List[dict]:        
+    
+    if data_path.endswith('.json'):
+        input_data = json_to_jsonl(read_json(data_path))
+    elif data_path.endswith('.jsonl'):
+        input_data = read_jsonl(data_path)
+    else:
+        raise Exception(f"Unknown data format: {data_path}")
+            
+    ranking_eval_data_list = []
+    for _, item in tqdm(enumerate(input_data)):
+        modalities = item['metadata']['modalities']
+        
+        if modalities != ['image'] and modalities != ['text'] and \
+            modalities != ['text', 'image'] and modalities != ['image', 'text']:
+            continue
+        
+        
+        ranking_eval_data = {}
+        ranking_eval_data["context"] = []
+        
+        question_text = item['question']
+        ranking_eval_data["question"] = question_text
+        
+        supporting_img_doc_ids = []
+        supporting_txt_doc_ids = []
+        for sc in item['supporting_context']:
+            if sc['doc_part'] == 'image':
+                supporting_img_doc_ids.append(sc['doc_id'])
+            elif sc['doc_part'] == 'text':
+                supporting_txt_doc_ids.append(sc['doc_id'])
+            else:
+                print(f"item: {sc['item']}")
+                raise Exception(f"Unexpectied data type: {sc['doc_part']}")
+                
+        
+        for image_doc_id in set(supporting_img_doc_ids):              
+            ranking_eval_data["context"].append({'title': "", 
+                                              'text': image_corpus_dict[image_doc_id]['title'],
+                                              'id': image_doc_id,
+                                              'data_type': 'img',
+                                             })
+            
+        for text_doc_id in set(supporting_txt_doc_ids):
+            ranking_eval_data["context"].append({'title': text_corpus_dict[text_doc_id]['title'], 
+                                              'text': text_corpus_dict[text_doc_id]['text'],
+                                              'id': text_doc_id,
+                                              'data_type': 'txt',
+                                             })
+            
+        neg_img_ids = set(item['metadata']['image_doc_ids']) - set(supporting_img_doc_ids)
+        neg_txt_ids = set(item['metadata']['text_doc_ids']) - set(supporting_txt_doc_ids)
+        
+        for image_doc_id in neg_img_ids:
+            ranking_eval_data["context"].append({'title': "", 
+                                              'text': image_corpus_dict[image_doc_id]['title'],
+                                              'id': image_doc_id,
+                                              'data_type': 'img',
+                                             })
+                          
+        for text_doc_id in neg_txt_ids:
+            ranking_eval_data["context"].append({'title': text_corpus_dict[text_doc_id]['title'], 
+                                              'text': text_corpus_dict[text_doc_id]['text'],
+                                              'id': text_doc_id,
+                                              'data_type': 'txt',
+                                             })
+            
+        ranking_eval_data_list.append(ranking_eval_data)
+        
+    return ranking_eval_data_list
+        
+
+def ranking_eval_data_processing_webqa(data_path: str=None) -> List[dict]:        
+    
+    if data_path.endswith('.json'):
+        input_data = json_to_jsonl(read_json(data_path))
+    elif data_path.endswith('.jsonl'):
+        input_data = read_jsonl(data_path)
+    else:
+        raise Exception(f"Unknown data format: {data_path}")
+            
+    ranking_eval_data_list = []
+    for idx in tqdm(range(len(input_data))):
+        example = input_data[idx]
+        
+        question_text = example['Q']
+        if question_text[0] == '"':
+            question_text = question_text[1:-1]
+            
+        ranking_eval_data = {}
+        ranking_eval_data["question"] = question_text
+        
+        if 'txt_Facts' in example:
+            ranking_eval_data["context"] = []
+            
+            txt_Facts = example['txt_Facts']
+            img_Facts = example['img_Facts']
+            
+            for txt_fact in txt_Facts:
+                ranking_eval_data["context"].append({'title': txt_fact['title'], 
+                                                            'text': txt_fact['fact'],
+                                                            'id': txt_fact['snippet_id'],
+                                                            'data_type': 'txt',
+                                                             }
+                                                          )
+                
+            for img_fact in img_Facts:
+                ranking_eval_data["context"].append({'title': "", 
+                                                            'text': img_fact['caption'],
+                                                            'id': img_fact['image_id'],
+                                                            'data_type': 'img',
+                                                             }
+                                                          )
+        else:
+            ranking_eval_data["context"] = []
+            for img_pos in example['img_posFacts']:
+                ranking_eval_data["context"].append({'title': "", 
+                                                  'text': img_pos['caption'],
+                                                  'id': img_pos['image_id'],
+                                                  'data_type': 'img',
+                                                 })
+
+            for txt_pos in example['txt_posFacts']:
+                ranking_eval_data["context"].append({'title': txt_pos['title'], 
+                                                  'text': txt_pos['fact'],
+                                                  'id': txt_pos['snippet_id'],
+                                                  'data_type': 'txt',
+                                                 })
+
+            ranking_eval_data["context"] = []
+            for img_neg in example['img_negFacts']:
+                ranking_eval_data["context"].append({'title': "", 
+                                                  'text': img_neg['caption'],
+                                                  'id': img_neg['image_id'],
+                                                  'data_type': 'img',
+                                                 })
+
+            for txt_neg in example['txt_negFacts']:
+                ranking_eval_data["context"].append({'title': txt_neg["title"], 
+                                                  'text': txt_neg['fact'],
+                                                  'id': txt_neg['snippet_id'],
+                                                  'data_type': 'txt',
+                                                 })
+            
+        ranking_eval_data_list.append(ranking_eval_data)
+        
+    return ranking_eval_data_list
+        

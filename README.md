@@ -81,6 +81,7 @@ RAMQA/data/
 │   └───RAMLLaMA_data
 │   │    │webqa_train_top15_permutedTimes-5.jsonl
 │   │    │webqa_val_top15_permutedTimes-5_val.jsonl
+│   │    │webqa_test_top15_permutedTimes-5_test.jsonl
 │   │
 │   └───imgs
 │   │    │imgs.tsv
@@ -112,8 +113,8 @@ RAMQA/data/
 │   │    │text_corpus_mmqa.json
 │   │
 │   └───RAMLLaMA_data
-│   │    │mmqa_train_top15_permutedTimes-5.jsonl
-│   │    │mmqa_val_top15_permutedTimes-5_val.jsonl
+│   │    │mmqa_train_top20_permutedTimes-5.jsonl
+│   │    |mmqa_dev_top20_permutedTimes-5_val.jsonl
 │   │
 │   └───mmqa_with_image_description
 │        │MMQA_with_ImageDescription_train.jsonl
@@ -271,11 +272,11 @@ python RAMQA/src/RankLLaVA/eval/rankLLaVaEval_webqa.py \
 * Input: 
     1. reranking_dir='RAMQA/data/results/webqa/RankLLaVA/<run_name>';
     2. checkpoint_path='<reranking_dir>/<best_checkpoint>';
-    3. reranking_test_file='RAMQA/data/WebQA/main_data/WebQA_val.json';
+    3. reranking_test_file='RAMQA/data/WebQA/main_data/WebQA_<val/test>.json';
     4. imgs_lineidx_path='RAMQA/data/WebQA/imgs/imgs.lineidx'
     5. img_tsv_path='RAMQA/data/WebQA/imgs/imgs.tsv'
 * Output: 
-    1. A file with ranking predictions saved at '<reranking_dir>/eval_results/ranking_output_webqa_val.jsonl'.
+    1. A file with ranking predictions saved at '<reranking_dir>/eval_results/ranking_output_webqa_<val/test>.jsonl'.
     2. A log file that prints out the detailed ranking evaluation scores.
 
 
@@ -310,7 +311,7 @@ python RAMQA/src/RankLLaVA/eval/rankLLaVaEval_mmqa.py \
 * Input: 
     1. reranking_dir='RAMQA/data/results/multimodalqa/RankLLaVA/<run_name>';
     2. checkpoint_path='<reranking_dir>/<best_checkpoint>';
-    3. reranking_test_file='RAMQA/data/multimodalqa/RankLLaVA_data/ranking_dev_data_mmqa.json';
+    3. reranking_test_file='RAMQA/data/multimodalqa/dataset/MMQA_dev.jsonl';
     4. image_zip_file_path='RAMQA/data/multimodalqa/dataset/final_dataset_images.zip'
     5. image_corpus_path='RAMQA/data/multimodalqa/RankLLaVA_data/image_corpus_mmqa.json'
     6. text_corpus_path='RAMQA/data/multimodalqa/RankLLaVA_data/text_corpus_mmqa.json'
@@ -489,8 +490,8 @@ python RAMQA/src/RAMLLaMA/train_RAMLLaMA.py \
         --lora_dropout 0
 ```
 * Input: 
-    1. train_file='RAMQA/data/multimodalqa/RAMLLaMA_data/mmqa_train_top15_permutedTimes-5.jsonl';
-    2. development_file='RAMQA/data/multimodalqa/RAMLLaMA_data/mmqa_dev_top15_permutedTimes-5.jsonl'
+    1. train_file='RAMQA/data/multimodalqa/RAMLLaMA_data/mmqa_train_top20_permutedTimes-5.jsonl';
+    2. development_file='RAMQA/data/multimodalqa/RAMLLaMA_data/mmqa_dev_top20_permutedTimes-5.jsonl'
     3. output_dir='RAMQA/data/results/multimodalqa/RAMLLaMA/<run_name>'
 
 * Output: 

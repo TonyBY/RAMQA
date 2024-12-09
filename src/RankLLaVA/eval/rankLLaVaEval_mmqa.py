@@ -40,7 +40,7 @@ tf_logging.set_verbosity_error()
 
 from src.utils.config import parser
 from src.utils.args import prepare_logger
-from src.utils.data_utils import make_directory, read_json, read_jsonl, save_jsonl, move_to_device, get_file_name
+from src.utils.data_utils import make_directory, read_json, read_jsonl, save_jsonl, move_to_device, get_file_name, ranking_eval_data_processing_mmqa
 from src.RankLLaVA.models.RankLLaVA_model import RankLLaVA
 from src.utils.model_utils import find_all_linear_names
 from src.utils.eval_utils import custom_eval
@@ -347,11 +347,6 @@ def eval(args,
     ##################################################################################################################################
     ##### Making Inference  ##########################################################################################################
     ##################################################################################################################################
-
-    first_hop_search_results = read_jsonl(args.reranking_test_file)
-    if args.debug:
-        first_hop_search_results = first_hop_search_results[:100]
-
     processor = AutoProcessor.from_pretrained(args.model_type)
     sample_num = processor.image_processor.resample
     h, w = processor.image_processor.crop_size.values()
@@ -360,11 +355,17 @@ def eval(args,
     text_corpus_dict = read_json(args.text_corpus_path)
     image_corpus_dict = read_json(args.image_corpus_path)
 
-    print(f"Start ranking sentences in the top docs for each claim.")
-    first_hop_reranking_results = []
-    for item in tqdm(first_hop_search_results, desc=f"Evaluating Multi-Modal Reranker: {args.model_type}"):    
-        question = item['question']
+    ranking_eval_input = ranking_eval_data_processing_mmqa(data_path = args.reranking_test_file, 
+                                                           text_corpus_dict=text_corpus_dict,
+                                                           image_corpus_dict=image_corpus_dict,
+                                                           )
+    if args.debug:
+        ranking_eval_input = ranking_eval_input[:100]
 
+    logger.info(f"Start ranking sentences in the top docs for each claim.")
+    ranking_eval_results = []
+    for item in tqdm(ranking_eval_input, desc=f"Evaluating Multi-Modal Reranker: {args.model_type}"):    
+        question = item['question']
         evidence_list = item['context']
 
         logger.info(f"len(evidence_list): {len(evidence_list)}")
@@ -476,14 +477,14 @@ def eval(args,
         logger.info(f"len(item['context']): {len(item['context'])}")
         if 'multihop_context' in item:
             item.pop('multihop_context') 
-        first_hop_reranking_results.append(item)
+        ranking_eval_results.append(item)
     
     logger.info(f"Saving reranker predictions to: {output_path}")
-    save_jsonl(first_hop_reranking_results, output_path)
-    return first_hop_reranking_results
+    save_jsonl(ranking_eval_results, output_path)
+    return ranking_eval_results
 
 
-def get_scores(first_hop_reranking_results):
+def get_scores(ranking_eval_results):
     ##################################################################################################################################
     ##### Evaluating Results  ########################################################################################################
     ##################################################################################################################################
@@ -492,7 +493,7 @@ def get_scores(first_hop_reranking_results):
         logger.info("#####################################################")
         logger.info("#####################################################")
         logger.info(f"me: {me}")
-        custom_eval(first_hop_reranking_results, max_evidence=me)
+        custom_eval(ranking_eval_results, max_evidence=me)
     
 
 if __name__ == "__main__":
@@ -506,16 +507,16 @@ if __name__ == "__main__":
     logger.info(f"output_path: {output_path}")
 
     if os.path.exists(output_path):
-        logger.info(f"Loading first_hop_reranking_results from: {output_path}...")
-        first_hop_reranking_results = read_jsonl(output_path)
+        logger.info(f"Loading ranking_eval_results from: {output_path}...")
+        ranking_eval_results = read_jsonl(output_path)
     else:
         logger.info(f"Start making predictions...")
-        first_hop_reranking_results = eval(args, 
+        ranking_eval_results = eval(args, 
                                         output_path=output_path,
                                         )
     
-    if 'positive_ctxs' in first_hop_reranking_results[0]:
+    if 'positive_ctxs' in ranking_eval_results[0]:
         logger.info(f"Start scoring...")
-        get_scores(first_hop_reranking_results)
+        get_scores(ranking_eval_results)
         
     logger.info("ALL DONE!")
