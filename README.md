@@ -6,7 +6,7 @@ University of Florida <br>
 RAMQA introduces a unified framework for Retrieval-Augmented Multi-Modal Question Answering by integrating learning-to-rank and generative ranking techniques to address challenges in multi-modal retrieval tasks, achieving state-of-the-art results on benchmark datasets [WebQA](https://eval.ai/web/challenges/challenge-page/1255/leaderboard/3168) and [MultiModalQA](https://allenai.github.io/multimodalqa/). 
 
 More details about our approach are described in our NAACL paper [RAMQA: A Unified Framework for Retrieval-Augmented Multi-Modal
-Question Answering](https://)
+Question Answering]([https://](https://www.arxiv.org/abs/2501.13297))
 
 <p align="center"><img width="100%" src="imgs/ramqa_overview.png" /></p>
 
