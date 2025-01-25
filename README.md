@@ -371,7 +371,7 @@ python RAMQA/src/RAMLLaMA/data/construct_dataset_to_finetune_RAMLLaMA_webqa.py \
     5. global_evi_dict_path='RAMQA/data/WebQA/webqa_with_image_description/webqa_wiki_dict_with_imgDes.json'
 * Output: 
     1. <train/val/test> data for training/evalauting RAMLLaMA, saved at ${output_path}.
-    2. A map between doc_id to textual content (including image discriptions), saved at: ${global_evi_dict_path}.
+    2. A map between doc_id to textual content (including image descriptions), saved at: ${global_evi_dict_path}.
 
 
 #### 4.1.2 Prepare MultiModalQA Data
@@ -424,7 +424,7 @@ python RAMQA/src/RAMLLaMA/data/construct_dataset_to_finetune_RAMLLaMA_mmqa.py \
     5. global_evi_dict_path='RAMQA/data/multimodalqa/mmqa_with_image_description/mmqa_wiki_dict_with_imgDes.json'
 * Output: 
     1. <train/dev> data for training/evalauting RAMLLaMA, saved at ${output_path}.
-    2. A map between doc_id to textual content (including image discriptions), saved at: ${global_evi_dict_path}.
+    2. A map between doc_id to textual content (including image descriptions), saved at: ${global_evi_dict_path}.
 
 ### 4.2 Train RAMLLaMA
 #### 4.2.1 Train with WebQA Data
