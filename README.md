@@ -593,7 +593,15 @@ python RAMQA/src/RAMLLaMA/eval/scorer_mmqa.py\
 
 ## Cite
 ```
-
+@misc{bai2025ramqaunifiedframeworkretrievalaugmented,
+      title={RAMQA: A Unified Framework for Retrieval-Augmented Multi-Modal Question Answering}, 
+      author={Yang Bai and Christan Earl Grant and Daisy Zhe Wang},
+      year={2025},
+      eprint={2501.13297},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL},
+      url={https://arxiv.org/abs/2501.13297}, 
+}
 ```
 
 ## License
