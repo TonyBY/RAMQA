@@ -149,7 +149,9 @@ python RAMQA/src/RankLLaVA/data/construct_dataset_for_reranker_webqa.py \
 
 #### 3.1.2 Prepare MultiModalQA Data
 ```bash
-python M3/src/data/process_wiki_sent_corpus.py
+python RAMQA/src/RankLLaVA/data/construct_dataset_for_reranker_mmqa.py \
+    --mmqa_data_path RAMQA/data/multimodalqa/dataset/MMQA_train.jsonl \
+    --output_path RAMQA/data/multimodalqa/ranking_data/ranking_train_data_mmqa.jsonl
 ```
 
 * Input: Original MMQA training/validation data and image index files.
